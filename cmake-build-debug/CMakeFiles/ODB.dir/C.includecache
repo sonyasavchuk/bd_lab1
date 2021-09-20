@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/dashulik/Documents/KNU/3rd semester/ODB/console.c
+db.h
+/Users/dashulik/Documents/KNU/3rd semester/ODB/db.h
+stdio.h
+-
+stdlib.h
+-
+stdbool.h
+-
+string.h
+-
+
+/Users/dashulik/Documents/KNU/3rd semester/ODB/db.h
+stdbool.h
+-
+

@@ -1,0 +1,4 @@
+/Users/dashulik/Documents/KNU/3rd semester/ODB/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/dashulik/Documents/KNU/3rd semester/ODB/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/dashulik/Documents/KNU/3rd semester/ODB/cmake-build-debug/CMakeFiles/example.dir
+/Users/dashulik/Documents/KNU/3rd semester/ODB/cmake-build-debug/CMakeFiles/ODB.dir
