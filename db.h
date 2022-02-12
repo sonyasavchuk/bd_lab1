@@ -3,17 +3,17 @@
 #include <stdbool.h>
 #define INDEX_MAX_SIZE 32
 void console_interface();
-struct Student {
+struct Instrument {
     unsigned id;
     char name[32];
-    char surname[32];
-    char grade[32];
+    char type[32];
+    char country[32];
 };
 
-struct Information {
+struct Materials {
     unsigned id;
-    char subject[32];
-    float gpa;
+    char material[32];
+    float amount;
 };
 
 struct IndexItem {
@@ -45,25 +45,25 @@ int get_s_record_no(unsigned id);
 
 int get_s_of_m_record_no(unsigned m_id, unsigned id);
 
-struct Student *get_m(unsigned id);
+struct Instrument *get_m(unsigned id);
 
-struct Information *get_s_at_line(int record_no);
+struct Materials *get_s_at_line(int record_no);
 
-struct Information *get_s(unsigned id);
+struct Materials *get_s(unsigned id);
 
-struct Information *get_s_of_m(unsigned m_id, unsigned id);
+struct Materials *get_s_of_m(unsigned m_id, unsigned id);
 
-int insert_m(const char name[32], const char surname[32], const char grade[32]);
+int insert_m(const char name[32], const char type[32], const char country[32]);
 
-int insert_s(unsigned m_id, const char subject[32], float gpa);
+int insert_s(unsigned m_id, const char material[32], float amount);
 
-int update_m(unsigned id, const char name[32], const char surname[32], const char grade[32]);
+int update_m(unsigned id, const char name[32], const char type[32], const char contry[32]);
 
-int update_s_at_line(int record_no, const char subject[32], float gpa);
+int update_s_at_line(int record_no, const char material[32], float amount);
 
-int update_s(unsigned id, const char subject[32], float gpa);
+int update_s(unsigned id, const char material[32], float amount);
 
-int update_s_of_m(unsigned m_id, unsigned id, const char title[32], float pulse);
+int update_s_of_m(unsigned m_id, unsigned id, const char material[32], float amount);
 
 int del_m(unsigned id);
 

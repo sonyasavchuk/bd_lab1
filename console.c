@@ -31,8 +31,8 @@ void show_command_list() {
 
 void console_interface() {
     int command = -1;
-    struct Student *student = malloc(sizeof(struct Student));
-    struct Information *inf = malloc(sizeof(struct Information));
+    struct Instrument *instrument = malloc(sizeof(struct Instrument));
+    struct Materials *inf = malloc(sizeof(struct Materials));
     char input1[32], input2[32], input3[32], input4[32];
 
     while (true) {
@@ -60,11 +60,11 @@ void console_interface() {
                 printf("\n");
                 break;
             case 3:
-                printf("student's name: ");
+                printf("instrument's name: ");
                 scanf("%s", input1);
-                printf("student's surname: ");
+                printf("instrument's type: ");
                 scanf("%s", input2);
-                printf("student's grade: ");
+                printf("instrument's country: ");
                 scanf("%s", input3);
                 if (insert_m(input1, input2, input3)) {
                     printf("Insertion failed, items limit reached\n");
@@ -75,9 +75,9 @@ void console_interface() {
             case 4:
                 printf("id of M item: ");
                 scanf("%s", input1);
-                printf("subject: ");
+                printf("material: ");
                 scanf("%s", input2);
-                printf("mark in this subject: ");
+                printf("amount of this material: ");
                 scanf("%s", input3);
                 if (insert_s(strtol(input1, NULL, 10), input2, strtof(input3, NULL))) {
                     printf("Insertion failed, M item was not found\n");
@@ -120,9 +120,9 @@ void console_interface() {
                 scanf("%s", input1);
                 printf("new name: ");
                 scanf("%s", input2);
-                printf("new surname: ");
+                printf("new type: ");
                 scanf("%s", input3);
-                printf("new grade: ");
+                printf("new country: ");
                 scanf("%s", input4);
                 if (update_m(strtol(input1, NULL, 10), input2, input3, input4)) {
                     printf("Update failed, item was not found\n");
@@ -133,9 +133,9 @@ void console_interface() {
             case 9:
                 printf("id of S item: ");
                 scanf("%s", input1);
-                printf("new subject: ");
+                printf("new material: ");
                 scanf("%s", input2);
-                printf("new mark: ");
+                printf("new amount: ");
                 scanf("%s", input3);
                 if (update_s(strtol(input1, NULL, 10), input2, strtof(input3, NULL))) {
                     printf("Update failed, M item was not found\n");
@@ -148,9 +148,9 @@ void console_interface() {
                 scanf("%s", input1);
                 printf("id of S item: ");
                 scanf("%s", input2);
-                printf("new subject: ");
+                printf("new material: ");
                 scanf("%s", input3);
-                printf("new mark: ");
+                printf("new amount: ");
                 scanf("%s", input4);
                 if (update_s_of_m(strtol(input1, NULL, 10), strtol(input2, NULL, 10), input3, strtof(input4, NULL))) {
                     printf("Update failed, M item was not found\n");
@@ -161,12 +161,12 @@ void console_interface() {
             case 11:
                 printf("id of M item: ");
                 scanf("%s", input1);
-                student = get_m(strtol(input1, NULL, 10));
-                if (student) {
-                    printf("id: %d \n", student->id);
-                    printf("name: %s \n", student->name);
-                    printf("surname: %s \n", student->surname);
-                    printf("grade: %s \n", student->grade);
+                instrument = get_m(strtol(input1, NULL, 10));
+                if (instrument) {
+                    printf("id: %d \n", instrument->id);
+                    printf("name: %s \n", instrument->name);
+                    printf("type: %s \n", instrument->type);
+                    printf("country: %s \n", instrument->country);
                 } else {
                     printf("Item was not found\n");
                 }
@@ -175,10 +175,10 @@ void console_interface() {
                 printf("id of S item: ");
                 scanf("%s", input1);
                 inf = get_s(strtol(input1, NULL, 10));
-                if (student) {
+                if (instrument) {
                     printf("id: %d \n", inf->id);
-                    printf("subject: %s \n", inf->subject);
-                    printf("subject mark: %f \n", inf->gpa);
+                    printf("material: %s \n", inf->material);
+                    printf("material amount: %f \n", inf->amount);
                 } else {
                     printf("Item was not found\n");
                 }
@@ -189,10 +189,10 @@ void console_interface() {
                 printf("id of S item: ");
                 scanf("%s", input2);
                 inf = get_s_of_m(strtol(input1, NULL, 10), strtol(input1, NULL, 10));
-                if (student) {
+                if (instrument) {
                     printf("id: %d \n", inf->id);
-                    printf("subject: %s \n", inf->subject);
-                    printf("grade in this subject: %f \n", inf->gpa);
+                    printf("material: %s \n", inf->material);
+                    printf("amount in this material: %f \n", inf->amount);
                 } else {
                     printf("Item was not found\n");
                 }

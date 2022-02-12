@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/Users/dashulik/Documents/KNU/3rd semester/ODB/console.c
+/Users/dashulik/Documents/KNU/3rd semester/ODB/db.c
 db.h
 /Users/dashulik/Documents/KNU/3rd semester/ODB/db.h
 stdio.h
@@ -16,6 +16,8 @@ stdlib.h
 stdbool.h
 -
 string.h
+-
+math.h
 -
 
 /Users/dashulik/Documents/KNU/3rd semester/ODB/db.h

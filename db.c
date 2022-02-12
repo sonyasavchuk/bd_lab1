@@ -90,9 +90,9 @@ int get_s_record_no(unsigned id) {
         return -1;
     }
     for (int i = 1; i <= s_meta.size_valid; i++) {
-        struct Information *inf = malloc(sizeof(struct Information));
+        struct Materials *inf = malloc(sizeof(struct Materials));
         bool valid;
-        fread(inf, sizeof(struct Information), 1, s_data_file);
+        fread(inf, sizeof(struct Materials), 1, s_data_file);
         fread(&valid, sizeof(bool), 1, s_data_file);
         if (inf->id == id) {
             fclose(s_data_file);
@@ -111,20 +111,20 @@ int get_s_of_m_record_no(unsigned m_id, unsigned id) {
     }
     FILE *m_data_file = fopen(M_DATA_FILENAME, "rb");
     FILE *s_data_file = fopen(S_DATA_FILENAME, "rb");
-    struct Information *inf = malloc(sizeof(struct Information));
+    struct Materials *inf = malloc(sizeof(struct Materials));
     int s_record_no;
     fseek(m_data_file,
-          sizeof(struct DataMeta) + (m_record_no) * (sizeof(struct Student) + sizeof(bool)) +
+          sizeof(struct DataMeta) + (m_record_no) * (sizeof(struct Instrument) + sizeof(bool)) +
           (m_record_no - 1) * sizeof(int),
           SEEK_SET
     );
     fread(&s_record_no, sizeof(int), 1, m_data_file);
     while (s_record_no != -1) {
         fseek(s_data_file,
-              sizeof(struct DataMeta) + (s_record_no - 1) * (sizeof(struct Information) + sizeof(bool) + sizeof(int)),
+              sizeof(struct DataMeta) + (s_record_no - 1) * (sizeof(struct Materials) + sizeof(bool) + sizeof(int)),
               SEEK_SET
         );
-        fread(inf, sizeof(struct Information), 1, s_data_file);
+        fread(inf, sizeof(struct Materials), 1, s_data_file);
         if (inf->id == id) {
             return s_record_no;
         }
@@ -136,48 +136,48 @@ int get_s_of_m_record_no(unsigned m_id, unsigned id) {
     return -1;
 }
 
-struct Student *get_m(unsigned id) {
+struct Instrument* get_m(unsigned id) {
     int record_no = get_m_record_no(id);
     if (record_no != -1) {
-        struct Student *student = malloc(sizeof(struct Student));
+        struct Instrument *instrument = malloc(sizeof(struct Instrument));
         FILE *m_data_file = fopen(M_DATA_FILENAME, "rb");
         fseek(m_data_file,
-              sizeof(struct DataMeta) + (record_no - 1) * (sizeof(struct Student) + sizeof(bool) + sizeof(int)),
+              sizeof(struct DataMeta) + (record_no - 1) * (sizeof(struct Instrument) + sizeof(bool) + sizeof(int)),
               SEEK_SET
         );
-        fread(student, sizeof(struct Student), 1, m_data_file);
+        fread(instrument, sizeof(struct Instrument), 1, m_data_file);
         fclose(m_data_file);
-        return student;
+        return instrument;
     } else {
         return NULL;
     }
 }
 
-struct Information *get_s_at_line(int record_no) {
+struct Materials *get_s_at_line(int record_no) {
     if (record_no != -1) {
-        struct Post *post = malloc(sizeof(struct Information));
+        struct Materials *material = malloc(sizeof(struct Materials));
         FILE *s_data_file = fopen(S_DATA_FILENAME, "rb");
         fseek(s_data_file,
-              sizeof(struct DataMeta) + (record_no - 1) * (sizeof(struct Information) + sizeof(bool) + sizeof(int)),
+              sizeof(struct DataMeta) + (record_no - 1) * (sizeof(struct Materials) + sizeof(bool) + sizeof(int)),
               SEEK_SET
         );
-        fread(post, sizeof(struct Information), 1, s_data_file);
+        fread(material, sizeof(struct Materials), 1, s_data_file);
         fclose(s_data_file);
-        return post;
+        return material;
     } else {
         return NULL;
     }
 }
 
-struct Information *get_s(unsigned id) {
+struct Materials *get_s(unsigned id) {
     return get_s_at_line(get_s_record_no(id));
 }
 
-struct Information *get_s_of_m(unsigned m_id, unsigned id) {
+struct Materials *get_s_of_m(unsigned m_id, unsigned id) {
     return get_s_at_line(get_s_of_m_record_no(m_id, id));
 }
 
-int insert_m(const char name[32], const char surname[32], const char grade[32]) {
+int insert_m(const char name[32], const char type[32], const char country[32]) {
     if (m_index.size == INDEX_MAX_SIZE) {
         return 1;
     }
@@ -192,27 +192,27 @@ int insert_m(const char name[32], const char surname[32], const char grade[32]) 
     m_index.max_id = ++m_meta.max_id;
     fseek(m_data_file, 0, SEEK_SET);
     fwrite(&m_meta, sizeof(struct DataMeta), 1, m_data_file);
-    struct Student student;
-    student.id = m_index.max_id;
-    strcpy(student.name, name);
-    strcpy(student.surname,surname);
-    strcpy(student.grade,grade);
+    struct Instrument instrument;
+    instrument.id = m_index.max_id;
+    strcpy(instrument.name, name);
+    strcpy(instrument.type,type);
+    strcpy(instrument.country,country);
     fseek(m_data_file,
-          sizeof(struct DataMeta) + (m_meta.size_valid - 1) * (sizeof(struct Student) + sizeof(bool) + sizeof(int)),
+          sizeof(struct DataMeta) + (m_meta.size_valid - 1) * (sizeof(struct Instrument) + sizeof(bool) + sizeof(int)),
           SEEK_SET
     );
-    fwrite(&student, sizeof(struct Student), 1, m_data_file);
+    fwrite(&instrument, sizeof(struct Instrument), 1, m_data_file);
     bool valid = true;
     fwrite(&valid, sizeof(bool), 1, m_data_file);
     int s_record_no = -1;
     fwrite(&s_record_no, sizeof(int), 1, m_data_file);
     fclose(m_data_file);
-    struct IndexItem newIndexItem = {student.id, m_meta.size_valid};
+    struct IndexItem newIndexItem = {instrument.id, m_meta.size_valid};
     m_index.data[m_index.size++] = newIndexItem;
     return 0;
 }
 
-int insert_s(unsigned m_id, const char subject[32], float gpa) {
+int insert_s(unsigned m_id, const char material[32], float amount) {
     int m_record_no = get_m_record_no(m_id);
     if (m_record_no == -1) {
         return 1;
@@ -228,21 +228,21 @@ int insert_s(unsigned m_id, const char subject[32], float gpa) {
     s_meta.max_id++;
     fseek(s_data_file, 0, SEEK_SET);
     fwrite(&s_meta, sizeof(struct DataMeta), 1, s_data_file);
-    struct Information inf;
+    struct Materials inf;
     inf.id = s_meta.max_id;
-    strcpy(inf.subject,subject);
-    inf.gpa = gpa;
+    strcpy(inf.material,material);
+    inf.amount = amount;
     fseek(s_data_file,
-          sizeof(struct DataMeta) + (s_meta.size_valid - 1) * (sizeof(struct Information) + sizeof(bool) + sizeof(int)),
+          sizeof(struct DataMeta) + (s_meta.size_valid - 1) * (sizeof(struct Materials) + sizeof(bool) + sizeof(int)),
           SEEK_SET);
-    fwrite(&inf, sizeof(struct Information), 1, s_data_file);
+    fwrite(&inf, sizeof(struct Materials), 1, s_data_file);
     bool valid = true;
     fwrite(&valid, sizeof(bool), 1, s_data_file);
     int next_s_record_no = -1;
     fwrite(&next_s_record_no, sizeof(int), 1, s_data_file);
     FILE *m_data_file = fopen(M_DATA_FILENAME, "rb+");
     fseek(m_data_file,
-          sizeof(struct DataMeta) + (m_record_no) * (sizeof(struct Student) + sizeof(bool)) +
+          sizeof(struct DataMeta) + (m_record_no) * (sizeof(struct Instrument) + sizeof(bool)) +
           (m_record_no - 1) * sizeof(int),
           SEEK_SET
     );
@@ -254,7 +254,7 @@ int insert_s(unsigned m_id, const char subject[32], float gpa) {
         while (next_s_record_no != -1) {
             int s_record_no = next_s_record_no;
             fseek(s_data_file,
-                  sizeof(struct DataMeta) + (s_record_no) * (sizeof(struct Information) + sizeof(bool)) +
+                  sizeof(struct DataMeta) + (s_record_no) * (sizeof(struct Materials) + sizeof(bool)) +
                   (s_record_no - 1) * sizeof(int),
                   SEEK_SET
             );
@@ -268,53 +268,53 @@ int insert_s(unsigned m_id, const char subject[32], float gpa) {
     return 0;
 }
 
-int update_m(unsigned id, const char name[32], const char surname[32], const char grade[32]) {
+int update_m(unsigned id, const char name[32], const char type[32], const char country[32]) {
     int record_no = get_m_record_no(id);
     if (record_no == -1) {
         return 1;
     }
-    struct Student student;
+    struct Instrument instrument;
     FILE *m_data_file = fopen(M_DATA_FILENAME, "rb+");
     fseek(m_data_file,
-          sizeof(struct DataMeta) + (record_no - 1) * (sizeof(struct Student) + sizeof(bool) + sizeof(int)),
+          sizeof(struct DataMeta) + (record_no - 1) * (sizeof(struct Instrument) + sizeof(bool) + sizeof(int)),
           SEEK_SET
     );
-    fread(&student, sizeof(struct Student), 1, m_data_file);
-    strcpy(student.name, name);
-    strcpy(student.surname,surname);
-    strcpy(student.grade, grade);
-    fseek(m_data_file, (long) -sizeof(struct Student), SEEK_CUR);
-    fwrite(&student, sizeof(struct Student), 1, m_data_file);
+    fread(&instrument, sizeof(struct Instrument), 1, m_data_file);
+    strcpy(instrument.name, name);
+    strcpy(instrument.type,type);
+    strcpy(instrument.country, country);
+    fseek(m_data_file, (long) -sizeof(struct Instrument), SEEK_CUR);
+    fwrite(&instrument, sizeof(struct Instrument), 1, m_data_file);
     fclose(m_data_file);
     return 0;
 }
 
-int update_s_at_line(int record_no, const char subject[32], float gpa) {
+int update_s_at_line(int record_no, const char material[32], float amount) {
     if (record_no == -1) {
         return 1;
     }
 
-    struct Information inf;
+    struct Materials inf;
     FILE *s_data_file = fopen(S_DATA_FILENAME, "rb+");
     fseek(s_data_file,
-          sizeof(struct DataMeta) + (record_no - 1) * (sizeof(struct Information) + sizeof(bool) + sizeof(int)),
+          sizeof(struct DataMeta) + (record_no - 1) * (sizeof(struct Materials) + sizeof(bool) + sizeof(int)),
           SEEK_SET
     );
-    fread(&inf, sizeof(struct Information), 1, s_data_file);
-    strcpy(inf.subject, subject);
-   inf.gpa=gpa;
-    fseek(s_data_file, (long) -sizeof(struct Information), SEEK_CUR);
-    fwrite(&inf, sizeof(struct Information), 1, s_data_file);
+    fread(&inf, sizeof(struct Materials), 1, s_data_file);
+    strcpy(inf.material, material);
+   inf.amount=amount;
+    fseek(s_data_file, (long) -sizeof(struct Materials), SEEK_CUR);
+    fwrite(&inf, sizeof(struct Materials), 1, s_data_file);
     fclose(s_data_file);
     return 0;
 }
 
-int update_s(unsigned id, const char subject[32], float grade) {
-    return update_s_at_line(get_s_record_no(id), subject, grade);
+int update_s(unsigned id, const char material[32], float amount) {
+    return update_s_at_line(get_s_record_no(id), material, amount);
 }
 
-int update_s_of_m(unsigned m_id, unsigned id, const char subject[32], float gpa) {
-    return update_s_at_line(get_s_of_m_record_no(m_id, id), subject, gpa);
+int update_s_of_m(unsigned m_id, unsigned id, const char material[32], float amount) {
+    return update_s_at_line(get_s_of_m_record_no(m_id, id), material, amount);
 }
 
 int del_m(unsigned id) {
@@ -352,13 +352,13 @@ int del_m(unsigned id) {
     }
     FILE *m_data_file = fopen(M_DATA_FILENAME, "rb+");
     fseek(m_data_file,
-          sizeof(struct DataMeta) + (record_no) * sizeof(struct Student) +
+          sizeof(struct DataMeta) + (record_no) * sizeof(struct Instrument) +
           (record_no - 1) * (sizeof(bool) + sizeof(int)),
           SEEK_SET
     );
     fwrite(&valid, sizeof(bool), 1, m_data_file);
     fseek(m_data_file,
-          sizeof(struct DataMeta) + (record_no) * (sizeof(struct Student) + sizeof(bool)) +
+          sizeof(struct DataMeta) + (record_no) * (sizeof(struct Instrument) + sizeof(bool)) +
           (record_no - 1) * (sizeof(int)),
           SEEK_SET
     );
@@ -366,13 +366,13 @@ int del_m(unsigned id) {
     FILE *s_data_file = fopen(S_DATA_FILENAME, "rb+");
     while (s_record_no != -1) {
         fseek(s_data_file,
-              sizeof(struct DataMeta) + (s_record_no) * sizeof(struct Information) +
+              sizeof(struct DataMeta) + (s_record_no) * sizeof(struct Materials) +
               (s_record_no - 1) * (sizeof(bool) + sizeof(int)),
               SEEK_SET
         );
         fwrite(&valid, sizeof(bool), 1, s_data_file);
         fseek(s_data_file,
-              sizeof(struct DataMeta) + (s_record_no) * (sizeof(struct Information) + sizeof(bool)) +
+              sizeof(struct DataMeta) + (s_record_no) * (sizeof(struct Materials) + sizeof(bool)) +
               (s_record_no - 1) * sizeof(int),
               SEEK_SET
         );
@@ -396,7 +396,7 @@ int del_s_at_line(int record_no) {
     int next_s_record_no;
     FILE *s_data_file = fopen(S_DATA_FILENAME, "rb+");
     fseek(s_data_file,
-          sizeof(struct DataMeta) + (record_no) * sizeof(struct Information) +
+          sizeof(struct DataMeta) + (record_no) * sizeof(struct Materials) +
           (record_no - 1) * (sizeof(bool) + sizeof(int)),
           SEEK_SET
     );
@@ -405,7 +405,7 @@ int del_s_at_line(int record_no) {
         return 1;
     }
     fseek(s_data_file,
-          sizeof(struct DataMeta) + (record_no) * sizeof(struct Information) +
+          sizeof(struct DataMeta) + (record_no) * sizeof(struct Materials) +
           (record_no - 1) * (sizeof(bool) + sizeof(int)),
           SEEK_SET
     );
@@ -416,7 +416,7 @@ int del_s_at_line(int record_no) {
     struct DataMeta s_meta;
     fread(&s_meta, sizeof(struct DataMeta), 1, s_data_file);
     for (int i = 0; i < s_meta.size_valid; i++) {
-        fseek(s_data_file, sizeof(struct Information), SEEK_CUR);
+        fseek(s_data_file, sizeof(struct Materials), SEEK_CUR);
         fread(&valid, sizeof(bool), 1, s_data_file);
         fread(&next_s_record_no, sizeof(int), 1, s_data_file);
         if ((next_s_record_no == record_no) && valid) {
@@ -431,7 +431,7 @@ int del_s_at_line(int record_no) {
     struct DataMeta m_meta;
     fread(&m_meta, sizeof(struct DataMeta), 1, m_data_file);
     for (int i = 0; i < m_meta.size_valid; i++) {
-        fseek(m_data_file, sizeof(struct Student) + sizeof(bool), SEEK_CUR);
+        fseek(m_data_file, sizeof(struct Instrument) + sizeof(bool), SEEK_CUR);
         fread(&next_s_record_no, sizeof(int), 1, m_data_file);
         if (next_s_record_no == record_no) {
             fseek(m_data_file, (long) -sizeof(int), SEEK_CUR);
@@ -458,9 +458,9 @@ unsigned size_m() {
     fread(&m_meta, sizeof(struct DataMeta), 1, m_data_file);
     unsigned res = 0;
     for (unsigned i = 0; i < m_meta.size_valid; i++) {
-        struct Student student;
+        struct Instrument instrument;
         bool valid;
-        fread(&student, sizeof(struct Student), 1, m_data_file);
+        fread(&instrument, sizeof(struct Instrument), 1, m_data_file);
         fread(&valid, sizeof(bool), 1, m_data_file);
         fseek(m_data_file, sizeof(int), SEEK_CUR);
         if (valid) {
@@ -477,9 +477,9 @@ unsigned size_s() {
     fread(&s_meta, sizeof(struct DataMeta), 1, s_data_file);
     unsigned res = 0;
     for (unsigned i = 0; i < s_meta.size_valid; i++) {
-        struct Information inf;
+        struct Materials inf;
         bool valid;
-        fread(&inf, sizeof(struct Information), 1, s_data_file);
+        fread(&inf, sizeof(struct Materials), 1, s_data_file);
         fread(&valid, sizeof(bool), 1, s_data_file);
         fseek(s_data_file, sizeof(int), SEEK_CUR);
         if (valid) {
@@ -500,7 +500,7 @@ int size_s_of_m(unsigned m_id) {
     int s_record_no;
     int res = 0;
     fseek(m_data_file,
-          sizeof(struct DataMeta) + (m_record_no) * (sizeof(struct Student) + sizeof(bool)) +
+          sizeof(struct DataMeta) + (m_record_no) * (sizeof(struct Instrument) + sizeof(bool)) +
           (m_record_no - 1) * sizeof(int),
           SEEK_SET
     );
@@ -508,10 +508,10 @@ int size_s_of_m(unsigned m_id) {
     while (s_record_no != -1) {
         res++;
         fseek(s_data_file,
-              sizeof(struct DataMeta) + (s_record_no - 1) * (sizeof(struct Information) + sizeof(bool) + sizeof(int)),
+              sizeof(struct DataMeta) + (s_record_no - 1) * (sizeof(struct Materials) + sizeof(bool) + sizeof(int)),
               SEEK_SET
         );
-        fseek(s_data_file, sizeof(struct Information) + sizeof(bool), SEEK_CUR);
+        fseek(s_data_file, sizeof(struct Materials) + sizeof(bool), SEEK_CUR);
         fread(&s_record_no, sizeof(int), 1, s_data_file);
     }
 
@@ -528,18 +528,18 @@ void ut_m(bool print_removed) {
     printf("SIZE OF VALID BLOCK: %d\n", m_meta.size_valid);
     printf("MAX ID: %d \n", m_meta.max_id);
     for (unsigned i = 0; i < m_meta.size_valid; i++) {
-        struct Student student;
+        struct Instrument instrument;
         int s_record_no;
         bool valid;
-        fread(&student, sizeof(struct Student), 1, m_data_file);
+        fread(&instrument, sizeof(struct Instrument), 1, m_data_file);
         fread(&valid, sizeof(bool), 1, m_data_file);
         fread(&s_record_no, sizeof(int), 1, m_data_file);
         if (valid || print_removed) {
             printf("%d)\n", i + 1);
-            printf("\t id: %d \n", student.id);
-            printf("\t name: %s \n", student.name);
-            printf("\t surname: %s \n", student.surname);
-            printf("\t grade: %s \n", student.grade);
+            printf("\t id: %d \n", instrument.id);
+            printf("\t name: %s \n", instrument.name);
+            printf("\t type: %s \n", instrument.type);
+            printf("\t country: %s \n", instrument.country);
             printf("\t [first s record no.: %d] \n", s_record_no);
             if (print_removed) {
                 printf("\t [state: %s] \n", (valid) ? "valid" : "deleted");
@@ -557,17 +557,17 @@ void ut_s(bool print_removed) {
     printf("SIZE OF VALID BLOCK: %d\n", s_meta.size_valid);
     printf("MAX ID: %d \n", s_meta.max_id);
     for (unsigned i = 0; i < s_meta.size_valid; i++) {
-        struct Information inf;
+        struct Materials inf;
         int next_s_record_no;
         bool valid;
-        fread(&inf, sizeof(struct Information), 1, s_data_file);
+        fread(&inf, sizeof(struct Materials), 1, s_data_file);
         fread(&valid, sizeof(bool), 1, s_data_file);
         fread(&next_s_record_no, sizeof(int), 1, s_data_file);
         if (valid || print_removed) {
             printf("%d)\n", i + 1);
             printf("\t id: %d \n", inf.id);
-            printf("\t favorite subject: %s \n", inf.subject);
-            printf("\t GPA: %f \n", inf.gpa);
+            printf("\t material: %s \n", inf.material);
+            printf("\t amount: %f \n", inf.amount);
             printf("\t [next s record no.: %d] \n", next_s_record_no);
             if (print_removed) {
                 printf("\t [state: %s] \n", (valid) ? "valid" : "deleted");
@@ -582,16 +582,16 @@ void defragment_m() {
     FILE *m_data_file = fopen(M_DATA_FILENAME, "rb+");
     struct DataMeta m_meta;
     fread(&m_meta, sizeof(struct DataMeta), 1, m_data_file);
-    struct Student *student = malloc(sizeof(struct Student));
+    struct Instrument *instrument = malloc(sizeof(struct Instrument));
     bool valid;
     int next_s_record_no;
     unsigned curr_size_valid = 0;
     for (unsigned i = 0; i < m_meta.size_valid; i++) {
         fseek(m_data_file,
-              sizeof(struct DataMeta) + i * (sizeof(struct Student) + sizeof(bool) + sizeof(int)),
+              sizeof(struct DataMeta) + i * (sizeof(struct Instrument) + sizeof(bool) + sizeof(int)),
               SEEK_SET
         );
-        fread(student, sizeof(struct Student), 1, m_data_file);
+        fread(instrument, sizeof(struct Instrument), 1, m_data_file);
         fread(&valid, sizeof(bool), 1, m_data_file);
         fread(&next_s_record_no, sizeof(int), 1, m_data_file);
         if (valid) {
@@ -599,10 +599,10 @@ void defragment_m() {
             if (curr_size_valid - 1 != i) {
                 fseek(m_data_file,
                       sizeof(struct DataMeta) +
-                      (curr_size_valid - 1) * (sizeof(struct Student) + sizeof(bool) + sizeof(int)),
+                      (curr_size_valid - 1) * (sizeof(struct Instrument) + sizeof(bool) + sizeof(int)),
                       SEEK_SET
                 );
-                fwrite(student, sizeof(struct Student), 1, m_data_file);
+                fwrite(instrument, sizeof(struct Instrument), 1, m_data_file);
                 fwrite(&valid, sizeof(bool), 1, m_data_file);
                 fwrite(&next_s_record_no, sizeof(int), 1, m_data_file);
             }
@@ -624,16 +624,16 @@ void defragment_s() {
     FILE *m_data_file = fopen(M_DATA_FILENAME, "rb+");
     struct DataMeta m_meta;
     fread(&m_meta, sizeof(struct DataMeta), 1, m_data_file);
-    struct Information *inf = malloc(sizeof(struct Information));
+    struct Materials *inf = malloc(sizeof(struct Materials));
     bool valid;
     int next_s_record_no;
     unsigned curr_size_valid = 0;
     for (unsigned i = 0; i < s_meta.size_valid; i++) {
         fseek(s_data_file,
-              sizeof(struct DataMeta) + i * (sizeof(struct Information) + sizeof(bool) + sizeof(int)),
+              sizeof(struct DataMeta) + i * (sizeof(struct Materials) + sizeof(bool) + sizeof(int)),
               SEEK_SET
         );
-        fread(inf, sizeof(struct Information), 1, s_data_file);
+        fread(inf, sizeof(struct Materials), 1, s_data_file);
         fread(&valid, sizeof(bool), 1, s_data_file);
         fread(&next_s_record_no, sizeof(int), 1, s_data_file);
         if (valid) {
@@ -641,17 +641,17 @@ void defragment_s() {
             if (curr_size_valid - 1 != i) {
                 fseek(s_data_file,
                       sizeof(struct DataMeta) +
-                      (curr_size_valid - 1) * (sizeof(struct Information) + sizeof(bool) + sizeof(int)),
+                      (curr_size_valid - 1) * (sizeof(struct Materials) + sizeof(bool) + sizeof(int)),
                       SEEK_SET
                 );
-                fwrite(inf, sizeof(struct Information), 1, s_data_file);
+                fwrite(inf, sizeof(struct Materials), 1, s_data_file);
                 fwrite(&valid, sizeof(bool), 1, s_data_file);
                 fwrite(&next_s_record_no, sizeof(int), 1, s_data_file);
             }
             bool flag = false;
             fseek(s_data_file, sizeof(struct DataMeta), SEEK_SET);
             for (unsigned j = 0; j < i; j++) {
-                fseek(s_data_file, sizeof(struct Information) + sizeof(bool), SEEK_CUR);
+                fseek(s_data_file, sizeof(struct Materials) + sizeof(bool), SEEK_CUR);
                 fread(&next_s_record_no, sizeof(int), 1, s_data_file);
                 if (next_s_record_no == i + 1) {
                     fseek(s_data_file, (long) -sizeof(int), SEEK_CUR);
@@ -665,7 +665,7 @@ void defragment_s() {
             }
             fseek(m_data_file, sizeof(struct DataMeta), SEEK_SET);
             for (unsigned j = 0; j < m_meta.size_valid; j++) {
-                fseek(m_data_file, sizeof(struct Student) + sizeof(bool), SEEK_CUR);
+                fseek(m_data_file, sizeof(struct Instrument) + sizeof(bool), SEEK_CUR);
                 fread(&next_s_record_no, sizeof(int), 1, m_data_file);
                 if (next_s_record_no == i + 1) {
                     fseek(m_data_file, (long) -sizeof(int), SEEK_CUR);

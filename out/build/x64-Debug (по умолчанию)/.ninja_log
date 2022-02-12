@@ -1,0 +1,12 @@
+# ninja log v5
+12	157	665929945	CMakeFiles/ODB.dir/main.c.obj	a0338aa6e1a37848
+26	213	665929945	CMakeFiles/example.dir/example.c.obj	a2845e517a35f597
+1	316	665929945	CMakeFiles/ODB.dir/console.c.obj	4f10cb4951dd8d6d
+16	339	665929945	CMakeFiles/example.dir/db.c.obj	c69447b028a326e9
+21	346	665929945	CMakeFiles/ODB.dir/db.c.obj	db223a7ebed46328
+340	1304	665929946	example.exe	7fa0503e4a9df36d
+347	1305	665929946	ODB.exe	dd45c7153cceae6a
+1	695	665930360	CMakeFiles/ODB.dir/db.c.obj	db223a7ebed46328
+14	703	665930360	CMakeFiles/example.dir/db.c.obj	c69447b028a326e9
+703	1092	665930360	example.exe	7fa0503e4a9df36d
+696	1093	665930360	ODB.exe	dd45c7153cceae6a
